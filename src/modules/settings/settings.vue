@@ -29,7 +29,10 @@
 						<span>Settings have been saved successfully</span>
 					</blockquote>
 					<blockquote v-else-if="formError" class="">
-						{{ formError }}
+						<span v-if="formError.response?.data?.errors">
+							<div v-for="err in formError.response.data.errors">{{ err.message }}</div>
+						</span>
+						<span v-else>{{ formError }}</span>
 					</blockquote>
 
 					<v-button @click="responseDialog = false">Done</v-button>
