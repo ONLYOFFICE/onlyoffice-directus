@@ -13,20 +13,44 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
+    - name: Update Submodules
+      run: git submodule update --init --recursive
+
     - name: Install Node.js
       uses: actions/setup-node@v4
       with:
         node-version: 18
         registry-url: https://registry.npmjs.org
 
-    - name: Update Submodules
-      run: git submodule update --init --recursive
+    - uses: pnpm/action-setup@v3
+      name: Install pnpm
+      id: pnpm-install
+      with:
+        run_install: false
 
     - name: Get Info
-      run: node -p "'ver=v'+require('./package.json').version" >> $GITHUB_OUTPUT
-      id: info
+        id: info
+        shell: bash
+        run: |
+          echo "os-release=$(node --eval 'console.log(os.release())')" >> $GITHUB_OUTPUT
+          echo "pnpm-cache-dir=$(pnpm store path)" >> $GITHUB_OUTPUT
+          echo "ver=v$(node --eval 'require('./package.json').version')" >> $GITHUB_OUTPUT
+  
+    - uses: actions/cache@v4
+      name: Setup pnpm cache
+      with:
+        path: ${{ steps.info.outputs.pnpm-cache-dir }}
+        key:
+          ${{ runner.os }}-${{ steps.info.outputs.os-release }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ steps.info.outputs.os-release }}-pnpm-store-
+  
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install
 
     - name: Build
+      shell: bash
       run: pnpm run build
 
     - name: Create Artifact
