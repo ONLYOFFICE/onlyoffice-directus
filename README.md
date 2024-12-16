@@ -1,0 +1,1 @@
+# Directus ONLYOFFICE extension
