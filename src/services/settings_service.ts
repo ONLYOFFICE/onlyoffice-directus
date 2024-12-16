@@ -18,9 +18,9 @@ export class SettingsService {
         this.itemsServiceType = ItemsService;
     }
 
-    async getSettings(): Promise<any> {
+    async getSettings(checkRights: boolean = false): Promise<any> {
         try {
-            return (await this.getService()).readSingleton({});
+            return (await this.getService(checkRights)).readSingleton({});
         }
         catch (error) {
             this.request.log.error(error);
@@ -28,9 +28,10 @@ export class SettingsService {
         }
     }
 
-    private async getService() {
+    private async getService(checkRights: boolean) {
         const collectionsService = new this.collectionsServiceType({
             schema: await this.getSchema(),
+            accountability: checkRights ? this.request.accountability : null
         });
 
         let data: any = null;
@@ -47,6 +48,7 @@ export class SettingsService {
 
         return new this.itemsServiceType(constants.ONLYOFFICE_SETIINGS_COLLECTION_KEY, {
             schema: await this.getSchema(),
+            accountability: checkRights ? this.request.accountability : null
         });
     }
 }

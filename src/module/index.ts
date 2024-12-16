@@ -12,4 +12,22 @@ export default defineModule({
 			component: SettingsComponent,
 		},
 	],
+	options: [
+		{
+			field: 'responseFormat',
+			name: 'Response',
+			type: 'string',
+			meta: {
+				interface: 'system-display-template',
+				options: {
+					collectionField: 'collection',
+					placeholder: '{{ field }}',
+				},
+				width: 'full',
+			},
+		},
+	],
+	minWidth: 12,
+	minHeight: 8,
+	skipUndefinedKeys: ['responseFormat'],
 });
