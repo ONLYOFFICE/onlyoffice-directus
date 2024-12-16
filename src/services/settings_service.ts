@@ -23,7 +23,7 @@ export class SettingsService {
             return (await this.getService()).readSingleton({});
         }
         catch (error) {
-            this.request.error(error);
+            this.request.log.error(error);
             return null;
         }
     }
@@ -31,10 +31,12 @@ export class SettingsService {
     private async getService() {
         const collectionsService = new this.collectionsServiceType({
             schema: await this.getSchema(),
-            accountability: this.request.accountability
         });
 
-        const data = await collectionsService.readOne(constants.ONLYOFFICE_SETIINGS_COLLECTION_KEY);
+        let data: any = null;
+        try {
+            data = await collectionsService.readOne(constants.ONLYOFFICE_SETIINGS_COLLECTION_KEY);
+        } catch { }
 
         if (data == null) {
             await collectionsService.createOne(settings_collection);
@@ -45,7 +47,6 @@ export class SettingsService {
 
         return new this.itemsServiceType(constants.ONLYOFFICE_SETIINGS_COLLECTION_KEY, {
             schema: await this.getSchema(),
-            accountability: this.request.accountability
         });
     }
 }
