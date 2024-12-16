@@ -29,12 +29,12 @@ jobs:
         run_install: false
 
     - name: Get Info
-        id: info
-        shell: bash
-        run: |
-          echo "os-release=$(node --eval 'console.log(os.release())')" >> $GITHUB_OUTPUT
-          echo "pnpm-cache-dir=$(pnpm store path)" >> $GITHUB_OUTPUT
-          echo "ver=v$(node --eval 'require('./package.json').version')" >> $GITHUB_OUTPUT
+      id: info
+      shell: bash
+      run: |
+        echo "os-release=$(node --eval 'console.log(os.release())')" >> $GITHUB_OUTPUT
+        echo "pnpm-cache-dir=$(pnpm store path)" >> $GITHUB_OUTPUT
+        echo "ver=v$(node --eval 'require('./package.json').version')" >> $GITHUB_OUTPUT
   
     - uses: actions/cache@v4
       name: Setup pnpm cache
