@@ -2,20 +2,23 @@ import { EndpointExtensionContext } from "@directus/extensions";
 import formats from "../assets/document-formats/onlyoffice-docs-formats.json"
 import { ItemPermissions } from "@directus/types";
 import jwt from "jsonwebtoken";
+import { JwtUtils } from "./jwt_utils";
 
 export class EditorConfigService {
     private request: any;
+    private jwtUtils: JwtUtils;
     private getSchema: any;
     private fileServiceType: any;
     private usersServiceType: any;
     private settingsServiceType: any;
     private permissionsServiceType: any;
 
-    constructor(request: any, context: EndpointExtensionContext) {
+    constructor(request: any, context: EndpointExtensionContext, jwtUtils: JwtUtils) {
         const { services, getSchema } = context;
         const { FilesService, UsersService, SettingsService, PermissionsService } = services;
 
         this.request = request;
+        this.jwtUtils = jwtUtils;
         this.getSchema = getSchema;
         this.fileServiceType = FilesService;
         this.usersServiceType = UsersService;
@@ -100,6 +103,8 @@ export class EditorConfigService {
         if (directusSettings.default_appearance != "auto") {
             config.editorConfig.customization.uiTheme = `default-${directusSettings.default_appearance}`;
         }
+
+        config.token = this.jwtUtils.sign(config);
 
         return config;
     }

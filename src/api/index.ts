@@ -6,6 +6,7 @@ import { toArray } from "@directus/utils";
 import { useEnv } from '@directus/env';
 import { getAccountability } from "../utils/get_accountability";
 import jwt from "jsonwebtoken";
+import { JwtUtils } from "../services/jwt_utils";
 
 const env = useEnv();
 
@@ -16,11 +17,12 @@ export default defineEndpoint((router, context) => {
 	router.get("/editor/:file_id", async (request, response) => {
 		response.setHeader("Content-Security-Policy", `default-src: 'self'`);
 
-		const settingsService = new OnlyofficeSettingsService(request, context);
-		const editorConfig = new EditorConfigService(request, context);
-
 		try {
+			const settingsService = new OnlyofficeSettingsService(request, context);
 			const settings = await settingsService.getSettings();
+			const jwtUtils = new JwtUtils(settings);
+			const editorConfig = new EditorConfigService(request, context, jwtUtils);
+		
 			const config = await editorConfig.getConfig(request.params.file_id, request.query.edit ? EditorActionType.Edit : EditorActionType.View, request.query.embed ? EditorType.Embedded : EditorType.Desktop, settings);
 			response.send(getEditorTemplate(config, settings));
 		} catch (error) {
@@ -30,18 +32,13 @@ export default defineEndpoint((router, context) => {
 	});
 
 	router.get("/file/:file_id", async (request, response) => {
-		// if (req.accountability?.user == null) { 
-		// 	res.status(403); 
-		// 	return response.send(`You don"t have permission to access this.`); 
-		// } 
-
-		// # proxy https://docs.directus.io/extensions/app-composables.html#useapi
-
 		try {
 			const settings = await new OnlyofficeSettingsService(request, context).getSettings();
+			const jwtUtils = new JwtUtils(settings);
 
 			let userId = null;
 			try {
+				jwtUtils.verifyHeaders(request.headers);
 				userId = jwt.verify(request.query.oo_token, settings.directus_jwt_secret).user;
 			} catch (error) {
 				response.status(401);
@@ -95,8 +92,18 @@ export default defineEndpoint((router, context) => {
 		// ToDo: JWT
 
 		try {
-			const body = request.body;
+			let body = request.body;
 			request.log.info(`ONLYOFFICE Callback POST\n${JSON.stringify(body, null, 2)}`);
+
+			const settings = await new OnlyofficeSettingsService(request, context).getSettings();
+			const jwtUtils = new JwtUtils(settings);
+
+			try {
+				body = jwtUtils.verifyBody(body);
+			} catch (error) {
+				response.status(401);
+				throw error;
+			}
 
 			switch (body.status) {
 				case 1: // editing in progress
