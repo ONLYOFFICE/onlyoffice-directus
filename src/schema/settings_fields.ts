@@ -19,7 +19,27 @@ export default [
             special: null
         },
         schema: {
-            is_nullable : false,
+            is_nullable: false,
         },
+    },
+    {
+        field: "doc_server_jwt_secret",
+        type: "string",
+        meta: {
+            special: null
+        },
+        schema: {
+            is_nullable: true
+        }
+    },
+    {
+        field: "doc_server_jwt_header",
+        type: "string",
+        meta: {
+            special: null
+        },
+        schema: {
+            is_nullable: true
+        }
     }
 ];
