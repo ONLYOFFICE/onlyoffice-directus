@@ -16,7 +16,8 @@ export default [
         field: "doc_server_public_url",
         type: "string",
         meta: {
-            special: null
+            special: null,
+            interface: "input",
         },
         schema: {
             is_nullable: false,
@@ -26,7 +27,11 @@ export default [
         field: "doc_server_jwt_secret",
         type: "string",
         meta: {
-            special: null
+            special: null,
+            interface: "input",
+            options: {
+                masked: true,
+            }
         },
         schema: {
             is_nullable: true
@@ -36,10 +41,28 @@ export default [
         field: "doc_server_jwt_header",
         type: "string",
         meta: {
-            special: null
+            special: null,
+            interface: "input",
         },
         schema: {
             is_nullable: true
+        }
+    },
+    {
+        field: "directus_jwt_secret",
+        type: "string",
+        meta: {
+            special: null,
+            hidden: true,
+            required: true,
+            interface: "input",
+            options: {
+                masked: true,
+            }
+        },
+        schema: {
+            is_nullable: false,
+            default_value: "secret"
         }
     }
 ];

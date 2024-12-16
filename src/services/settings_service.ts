@@ -1,6 +1,7 @@
 import { EndpointExtensionContext } from "@directus/extensions";
 import settings_collection from "../schema/settings_collection";
 import * as constants from "../constants/constants";
+import { randomUUID } from "node:crypto";
 
 export class SettingsService {
     private request: any;
@@ -40,6 +41,7 @@ export class SettingsService {
         } catch { }
 
         if (data == null) {
+            settings_collection.fields.filter(f => f.field == "directus_jwt_secret")[0].schema.default_value = randomUUID();
             await collectionsService.createOne(settings_collection);
         }
         //  else {
