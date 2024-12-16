@@ -1,5 +1,6 @@
 import { EndpointExtensionContext } from "@directus/extensions";
 import formats from "../assets/document-formats/onlyoffice-docs-formats.json"
+import { ItemPermissions } from "@directus/types";
 
 export class EditorConfigService {
     private request: any;
@@ -7,16 +8,18 @@ export class EditorConfigService {
     private fileServiceType: any;
     private usersServiceType: any;
     private settingsServiceType: any;
+    private permissionsServiceType: any;
 
     constructor(request: any, context: EndpointExtensionContext) {
         const { services, getSchema } = context;
-        const { FilesService, UsersService, SettingsService } = services;
+        const { FilesService, UsersService, SettingsService, PermissionsService } = services;
 
         this.request = request;
         this.getSchema = getSchema;
         this.fileServiceType = FilesService;
         this.usersServiceType = UsersService;
         this.settingsServiceType = SettingsService;
+        this.permissionsServiceType = PermissionsService;
     }
 
     public async getConfig(fileId: string, editorAction: EditorActionType, editorType: EditorType) {
@@ -24,13 +27,18 @@ export class EditorConfigService {
 
         const schema = await this.getSchema();
         const filesService = new this.fileServiceType({
-            schema: schema
+            schema: schema,
+            accountability: this.request.accountability
         });
         const usersService = new this.usersServiceType({
             schema: schema
         });
         const settingsService = new this.settingsServiceType({
             schema: schema
+        });
+        const permissionsService = new this.permissionsServiceType({
+            schema: schema,
+            accountability: this.request.accountability
         });
 
         const data = await filesService.readOne(fileId) || null;
@@ -46,7 +54,8 @@ export class EditorConfigService {
 
         if (!format) throw new Error("Unknown format");
 
-        const isEdit = editorAction == EditorActionType.Edit && format.actions.includes("edit"); // ToDo: && enough rights to edit
+        const userRights: ItemPermissions = await permissionsService.getItemPermissions("directus_files", fileId);
+        const isEdit = editorAction == EditorActionType.Edit && format.actions.includes("edit") && userRights.update.access;
 
         const config = {
             "document": {
