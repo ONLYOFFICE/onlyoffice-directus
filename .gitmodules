@@ -1,0 +1,3 @@
+[submodule "src/assets/document-formats"]
+	path = src/assets/document-formats
+	url = https://github.com/ONLYOFFICE/document-formats
