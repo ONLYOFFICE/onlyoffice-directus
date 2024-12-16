@@ -44,9 +44,8 @@ export class SettingsService {
             settings_collection.fields.filter(f => f.field == "directus_jwt_secret")[0].schema.default_value = randomUUID();
             await collectionsService.createOne(settings_collection);
         }
-        //  else {
-        //     await collectionsService.updateOne(constants.ONLYOFFICE_SETIINGS_COLLECTION_KEY, {});
-        // }
+
+        // ToDo: add version number to settings field; collectionsService.updateOne doesn't update fields; have to call fieldsService for that
 
         return new this.itemsServiceType(constants.ONLYOFFICE_SETIINGS_COLLECTION_KEY, {
             schema: await this.getSchema(),
