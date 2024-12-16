@@ -43,6 +43,9 @@
 		<router-view name="landing-page" :page="page" />
 
 		<template #sidebar>
+			<sidebar-detail icon="info" :title="'information'" close>
+				<div v-md="'This extension allows you to edit and collaborate on office files in Directus using ONLYOFFICE Docs.\n\nConfigure the connection settings:\n\nDoc Server Public URL: Enter the URL of the installed ONLYOFFICE Docs (self-hosted or cloud instance).\n\nDoc Server Jwt Secret: Use the automatically generated secret key or enter your own. It should be the same as in the ONLYOFFICE Docs config file.\n\nDoc Server Jwt Header: Use the default JWT authorization header or enter your own.'" class="page-description" />
+			</sidebar-detail>
 		</template>
 	</private-view>
 </template>
