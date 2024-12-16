@@ -28,6 +28,11 @@
 				"type": "module",
 				"name": "module",
 				"source": "src/modules/settings/index.ts"
+			},
+			{
+				"type": "interface",
+				"name": "onlyoffice-file-interface",
+				"source": "src/onlyoffice-file-interface/index.ts"
 			}
 		],
 		"host": "^10.10.0"
