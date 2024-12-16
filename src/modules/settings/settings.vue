@@ -1,12 +1,23 @@
 <template>
 	<private-view title="ONLYOFFICE Settings">
+		<template #title-outer:prepend>
+			<v-button class="header-icon" rounded disabled icon secondary>
+				<v-icon name="settings" outline />
+			</v-button>
+		</template>
+
+		<template #navigation>
+			<navigation :current="page" :pages="allPages" />
+		</template>
+
 		<div v-if="!hasPermission" class="panel-error">
 			<v-notice type="danger" icon="warning">You do not have permissions to {{ collection }}</v-notice>
 		</div>
 
 		<div v-else>
 			<v-form v-if="fieldData" v-model="formData" :fields="fieldData" />
-			<v-button class="v-button-save" v-if="Object.keys(formData).length > 0" @click="submitForm()">Save</v-button>
+			<v-button class="v-button-save" v-if="Object.keys(formData).length > 0"
+				@click="submitForm()">Save</v-button>
 			<v-button class="v-button-save" v-else secondary>Save</v-button>
 
 			<v-dialog v-model="responseDialog" @esc="responseDialog = false">
@@ -25,16 +36,25 @@
 				</v-sheet>
 			</v-dialog>
 		</div>
+
+		<router-view name="landing-page" :page="page" />
+
+		<template #sidebar>
+		</template>
 	</private-view>
 </template>
 
 <script lang="ts">
 import { ref, watch, defineComponent } from "vue";
 import { useApi, useCollection, useStores } from "@directus/extensions-sdk";
-import * as constants from "../constants/constants";
-import settings_fields from "../schema/settings_fields";
+import * as constants from "../../constants/constants";
+import settings_fields from "../../schema/settings_fields";
+import navigation from "./navigation.vue";
 
 export default defineComponent({
+	components: {
+		navigation
+	},
 	props: {
 		collection: {
 			type: String,
@@ -44,6 +64,10 @@ export default defineComponent({
 			type: Array,
 			default: settings_fields,
 		},
+		page: {
+			type: String,
+			default: "",
+		}
 	},
 
 	setup(props) {
@@ -53,12 +77,14 @@ export default defineComponent({
 		const hasPermission = permissionsStore.hasPermission(props.collection, "create");
 		const api = useApi();
 		const { primaryKeyField } = useCollection(props.collection);
-		const formData = ref({});
-		const fieldData = ref([]);
+		const formData = ref({} as any);
+		const fieldData = ref([] as any[]);
 
 		const formResponse = ref({});
 		const formError = ref({});
 		const responseDialog = ref(false);
+
+		const allPages = ref([] as any[]);
 
 		function submitForm() {
 			if (!formData.value.id) {
@@ -80,7 +106,7 @@ export default defineComponent({
 		function getFields() {
 			fieldData.value = [];
 
-			props.fields.forEach((field) => {
+			props.fields.forEach((field: any) => {
 				fieldData.value.push(fieldsStore.getField(props.collection, field.field));
 			});
 		}
@@ -97,11 +123,23 @@ export default defineComponent({
 				});
 		}
 
+		function getAllPages() {
+			allPages.value = [
+				{
+					label: "Settings",
+					uri: "",
+					to: "",
+					icon: "settings"
+				},
+			];
+		}
+
 		getFields();
 		getValues();
+		getAllPages();
 
-		watch([() => props.collection, () => props.fields], getFields);
-	
+		watch([() => props.collection, () => props.fields, () => props.page], getFields);
+
 		return {
 			hasPermission,
 			primaryKeyField,
@@ -111,13 +149,15 @@ export default defineComponent({
 			formError,
 			responseDialog,
 			submitForm,
+			allPages,
 		};
 	},
 });
 </script>
 
 <style scoped>
-.v-form, .v-button-save {
+.v-form,
+.v-button-save {
 	padding: calc(var(--content-padding) * 3) var(--content-padding) var(--content-padding);
 	padding-bottom: 0;
 
@@ -130,5 +170,9 @@ export default defineComponent({
 .v-sheet blockquote {
 	margin-top: 16px;
 	margin-bottom: 16px;
+}
+
+.header-icon {
+	--v-button-color-disabled: var(--theme--foreground);
 }
 </style>

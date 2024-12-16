@@ -27,7 +27,7 @@
 			{
 				"type": "module",
 				"name": "module",
-				"source": "src/module/index.ts"
+				"source": "src/modules/settings/index.ts"
 			}
 		],
 		"host": "^10.10.0"
