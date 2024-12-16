@@ -44,12 +44,6 @@ export default defineComponent({
 			type: Array,
 			default: settings_fields,
 		},
-		responseFormat: {
-			type: String,
-			default: '',
-		},
-		width: String,
-		height: String,
 	},
 
 	setup(props) {
@@ -106,7 +100,7 @@ export default defineComponent({
 		getFields();
 		getValues();
 
-		watch([() => props.collection, () => props.fields, () => props.responseFormat], getFields);
+		watch([() => props.collection, () => props.fields], getFields);
 	
 		return {
 			hasPermission,
@@ -137,5 +131,4 @@ export default defineComponent({
 	margin-top: 16px;
 	margin-bottom: 16px;
 }
-
 </style>
