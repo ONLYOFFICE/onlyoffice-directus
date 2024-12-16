@@ -49,5 +49,10 @@
 		"vue": "^3.5.13",
 		"@types/node": "^22.10.1",
 		"@types/jsonwebtoken": "9.0.7"
+	},
+	"packageManager": "pnpm@9.12.1",
+	"engines": {
+		"node": ">=18.18.0",
+		"pnpm": "9"
 	}
 }
