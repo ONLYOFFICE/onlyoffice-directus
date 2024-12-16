@@ -1,6 +1,7 @@
 import { EndpointExtensionContext } from "@directus/extensions";
 import formats from "../assets/document-formats/onlyoffice-docs-formats.json"
 import { ItemPermissions } from "@directus/types";
+import jwt from "jsonwebtoken";
 
 export class EditorConfigService {
     private request: any;
@@ -22,7 +23,7 @@ export class EditorConfigService {
         this.permissionsServiceType = PermissionsService;
     }
 
-    public async getConfig(fileId: string, editorAction: EditorActionType, editorType: EditorType) {
+    public async getConfig(fileId: string, editorAction: EditorActionType, editorType: EditorType, settings: any) {
         if (this.request.accountability?.user == null) throw new Error("No user");
 
         const schema = await this.getSchema();
@@ -43,7 +44,7 @@ export class EditorConfigService {
 
         const data = await filesService.readOne(fileId) || null;
         const user = await usersService.readOne(this.request.accountability.user);
-        const settings = await settingsService.readSingleton({});
+        const directusSettings = await settingsService.readSingleton({});
 
         if (!data) throw new Error("Missing file id");
 
@@ -57,6 +58,14 @@ export class EditorConfigService {
         const userRights: ItemPermissions = await permissionsService.getItemPermissions("directus_files", fileId);
         const isEdit = editorAction == EditorActionType.Edit && format.actions.includes("edit") && userRights.update.access;
 
+        const ooToken = jwt.sign({
+            user: user.id
+        },
+            settings.directus_jwt_secret,
+            {
+                expiresIn: "10m"
+            });
+
         const config = {
             "document": {
                 "fileType": fileExt,
@@ -68,12 +77,12 @@ export class EditorConfigService {
                     "edit": isEdit
                 },
                 "title": data.title,
-                "url": `${baseUrl}/onlyoffice/file/${data.id}`,
+                "url": `${baseUrl}/onlyoffice/file/${data.id}?oo_token=${ooToken}`,
                 "documentType": format.type,
             },
             "editorConfig": {
                 "callbackUrl": isEdit ? `${baseUrl}/onlyoffice/file/${data.id}/callback` : null,
-                "lang": user.language || settings.default_language,
+                "lang": user.language || directusSettings.default_language,
                 "mode": isEdit ? "edit" : "view",
                 "user": {
                     "id": user.id,
@@ -88,8 +97,8 @@ export class EditorConfigService {
             "type": this.getEditorType(editorType)
         };
 
-        if (settings.default_appearance != "auto") {
-            config.editorConfig.customization.uiTheme = `default-${settings.default_appearance}`;
+        if (directusSettings.default_appearance != "auto") {
+            config.editorConfig.customization.uiTheme = `default-${directusSettings.default_appearance}`;
         }
 
         return config;

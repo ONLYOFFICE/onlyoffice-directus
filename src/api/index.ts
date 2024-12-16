@@ -5,6 +5,7 @@ import { EditorConfigService, EditorActionType, EditorType } from "../services/e
 import { toArray } from "@directus/utils";
 import { useEnv } from '@directus/env';
 import { getAccountability } from "../utils/get_accountability";
+import jwt from "jsonwebtoken";
 
 const env = useEnv();
 
@@ -19,8 +20,9 @@ export default defineEndpoint((router, context) => {
 		const editorConfig = new EditorConfigService(request, context);
 
 		try {
-			const config = await editorConfig.getConfig(request.params.file_id, request.query.edit ? EditorActionType.Edit : EditorActionType.View, request.query.embed ? EditorType.Embedded : EditorType.Desktop);
-			response.send(getEditorTemplate(config, await settingsService.getSettings()));
+			const settings = await settingsService.getSettings();
+			const config = await editorConfig.getConfig(request.params.file_id, request.query.edit ? EditorActionType.Edit : EditorActionType.View, request.query.embed ? EditorType.Embedded : EditorType.Desktop, settings);
+			response.send(getEditorTemplate(config, settings));
 		} catch (error) {
 			request.log.error(error);
 			response.json({ "error": 1, "message": error.message });
@@ -28,9 +30,6 @@ export default defineEndpoint((router, context) => {
 	});
 
 	router.get("/file/:file_id", async (request, response) => {
-
-		// ToDo: JWT
-
 		// if (req.accountability?.user == null) { 
 		// 	res.status(403); 
 		// 	return response.send(`You don"t have permission to access this.`); 
@@ -39,6 +38,15 @@ export default defineEndpoint((router, context) => {
 		// # proxy https://docs.directus.io/extensions/app-composables.html#useapi
 
 		try {
+			const settings = await new OnlyofficeSettingsService(request, context).getSettings();
+
+			try {
+				jwt.verify(request.query.oo_token, settings.directus_jwt_secret);
+			} catch (error) {
+				response.status(401);
+				throw error;
+			}
+
 			const service = new AssetsService({
 				schema: request.schema,
 			});
