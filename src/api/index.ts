@@ -48,4 +48,16 @@ export default defineEndpoint((router, context) => {
 			response.json({"error": 1, "message": error.message});
 		}
 	});
+
+	router.get("/settings", async (request, response) => {
+		try {
+			const settingsService = new OnlyofficeSettingsService(request, context);
+			response.json(await settingsService.getSettings(true));
+		} catch (error) {
+			request.log.error(error);
+			response.statusCode = 500;
+			response.json({ "error": 1, "message": error.message },);
+		}
+	});
+
 });
