@@ -34,6 +34,7 @@ function getEditorTemplate(config: any, settings: any) {
 }
 
 function sanitizeUrl(url: string) {
+    if (!url) return url;
     if (url.endsWith("/")) return url;
     return url + "/";
 }
