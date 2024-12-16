@@ -71,10 +71,17 @@ export class EditorConfigService {
                     "name": `${user.first_name} ${user.last_name}`,
                     "image": user.avatar ? `${baseUrl}/assets/${user.avatar}` : null
                 },
+                "customization": {
+                    "uiTheme": "",
+                }
             },
             "token": "",
             "type": this.getEditorType(editorType)
         };
+
+        if (settings.default_appearance != "auto") {
+            config.editorConfig.customization.uiTheme = `default-${settings.default_appearance}`;
+        }
 
         return config;
     }

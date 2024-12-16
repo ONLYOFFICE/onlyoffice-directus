@@ -23,6 +23,13 @@ function getEditorTemplate(config: any, settings: any) {
             <script type="text/javascript" src="${sanitizeUrl(settings.doc_server_public_url)}web-apps/apps/api/documents/api.js"></script>
             <script type="text/javascript">
                 const config = JSON.parse('${JSON.stringify(config)}');
+
+                if (!config.editorConfig.customization.uiTheme) {
+                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        config.editorConfig.customization.uiTheme = "default-dark";
+                    }
+                }
+
                 console.debug("Editor Config", Object.assign({}, config));
                 window.docEditor = new DocsAPI.DocEditor("placeholder", config);
             </script>
