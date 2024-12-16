@@ -1,11 +1,11 @@
-function getEditorTemplate(settings: any) {
+function getEditorTemplate(config: any, settings: any) {
     const editorTemplate = `
         <!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Document</title>
+            <title>${config.document.title} - ONLYOFFICE</title>
             <style>
                 * {
                     margin: 0;
@@ -22,19 +22,9 @@ function getEditorTemplate(settings: any) {
             <div id="placeholder" style="height: 100%"></div>
             <script type="text/javascript" src="${sanitizeUrl(settings.doc_server_public_url)}web-apps/apps/api/documents/api.js"></script>
             <script type="text/javascript">
-                window.docEditor = new DocsAPI.DocEditor("placeholder", {
-                    "document": {
-                        "fileType": "docx",
-                        "key": "E7FAFC9C22A8",
-                        "title": "Example Document Title.docx",
-                        "url": "https://github.com/ONLYOFFICE/document-templates/raw/master/sample/sample.docx"
-                    },
-                    "documentType": "word",
-                    "editorConfig": {
-                    },
-                    "height": "100%",
-                    "width": "100%"
-                });
+                const config = JSON.parse('${JSON.stringify(config)}');
+                console.debug("Editor Config", Object.assign({}, config));
+                window.docEditor = new DocsAPI.DocEditor("placeholder", config);
             </script>
         </body>
         </html>
