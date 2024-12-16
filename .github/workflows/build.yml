@@ -1,0 +1,39 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, reopened]
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        registry-url: https://registry.npmjs.org
+
+    - name: Update Submodules
+      run: git submodule update --init --recursive
+
+    - name: Get Info
+      run: node -p "'ver=v'+require('./package.json').version" >> $GITHUB_OUTPUT
+      id: info
+
+    - name: Build
+      run: pnpm run build
+
+    - name: Create Artifact
+      run: tar -czf onlyoffice-directus-${{ steps.info.outputs.ver }}.tar.gz package.json dist/
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: onlyoffice-directus-${{ steps.info.outputs.ver }}
+        path: onlyoffice-directus-${{ steps.info.outputs.ver }}.tar.gz
