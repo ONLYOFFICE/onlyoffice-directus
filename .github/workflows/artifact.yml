@@ -34,7 +34,7 @@ jobs:
       run: |
         echo "os-release=$(node --eval 'console.log(os.release())')" >> $GITHUB_OUTPUT
         echo "pnpm-cache-dir=$(pnpm store path)" >> $GITHUB_OUTPUT
-        echo "ver=v$(node --eval 'require('./package.json').version')" >> $GITHUB_OUTPUT
+        echo "ver=v$(node --eval 'console.log(require(`./package.json`).version)')" >> $GITHUB_OUTPUT
   
     - uses: actions/cache@v4
       name: Setup pnpm cache
@@ -53,11 +53,10 @@ jobs:
       shell: bash
       run: pnpm run build
 
-    - name: Create Artifact
-      run: tar -czf onlyoffice-directus-${{ steps.info.outputs.ver }}.tar.gz package.json dist/
-
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: onlyoffice-directus-${{ steps.info.outputs.ver }}
-        path: onlyoffice-directus-${{ steps.info.outputs.ver }}.tar.gz
+        path: |
+          dist/
+          package.json
