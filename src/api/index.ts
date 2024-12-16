@@ -40,15 +40,19 @@ export default defineEndpoint((router, context) => {
 		try {
 			const settings = await new OnlyofficeSettingsService(request, context).getSettings();
 
+			let userId = null;
 			try {
-				jwt.verify(request.query.oo_token, settings.directus_jwt_secret);
+				userId = jwt.verify(request.query.oo_token, settings.directus_jwt_secret).user;
 			} catch (error) {
 				response.status(401);
 				throw error;
 			}
 
+			request.accountability = await getAccountability(context, userId);
+
 			const service = new AssetsService({
 				schema: request.schema,
+				accountability: request.accountability
 			});
 
 			const { stream, file, stat } = await service.getAsset(request.params.file_id, null, null);
