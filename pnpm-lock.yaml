@@ -8,9 +8,15 @@ importers:
 
   .:
     devDependencies:
+      '@directus/env':
+        specifier: 4.1.0
+        version: 4.1.0(vue@3.5.13(typescript@5.7.2))
       '@directus/extensions-sdk':
         specifier: 12.1.4
         version: 12.1.4(@types/node@22.10.2)(@unhead/vue@1.11.14(vue@3.5.13(typescript@5.7.2)))(knex@3.1.0)(pinia@2.3.0(typescript@5.7.2)(vue@3.5.13(typescript@5.7.2)))(terser@5.37.0)(typescript@5.7.2)
+      '@directus/utils':
+        specifier: 12.0.5
+        version: 12.0.5(vue@3.5.13(typescript@5.7.2))
       '@types/jsonwebtoken':
         specifier: 9.0.7
         version: 9.0.7
@@ -57,6 +63,9 @@ packages:
 
   '@directus/constants@12.0.1':
     resolution: {integrity: sha512-KrYZALAduiACQRKkVX1dDor8gOX/uJjpZVrKD8GvvWNOKeEK5/mTU8oHlCeyuLfPamN1gjSGhD6XeXblttL/Xg==}
+
+  '@directus/env@4.1.0':
+    resolution: {integrity: sha512-ANsZoY5Yz9Y8o0U0NuLx1Xxq+mw4o4BHigPmBBbEgBtlFM4Y2hjNDavezfHst4JDyR2Ksc2WyOmyzudGyF6lDA==}
 
   '@directus/extensions-sdk@12.1.4':
     resolution: {integrity: sha512-w/iobzr6AzR3mv9qAPPrXxugesUyd4sYGSGXSFUsqlVCix0cfjyIm2TxEO/PUkSGsPRX1wCzwKfupXrXjCw7Uw==}
@@ -933,6 +942,10 @@ packages:
 
   domutils@2.8.0:
     resolution: {integrity: sha512-w96Cjofp72M5IIhpjgobBimYEfoPjx1Vx0BSX9P30WBdZW2WIKU0T1Bd0kz2eNZ9ikjKgHbEyKx8BB6H1L3h3A==}
+
+  dotenv@16.4.5:
+    resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
+    engines: {node: '>=12'}
 
   ecdsa-sig-formatter@1.0.11:
     resolution: {integrity: sha512-nagl3RYrbNv6kQkeJIpt6NJZy8twLB/2vtz6yN9Z4vRKHN4/QZJIEbqohALSgwKdnksuY3k5Addp5lg8sVoVcQ==}
@@ -1890,6 +1903,15 @@ snapshots:
 
   '@directus/constants@12.0.1': {}
 
+  '@directus/env@4.1.0(vue@3.5.13(typescript@5.7.2))':
+    dependencies:
+      '@directus/constants': 12.0.1
+      '@directus/utils': 12.0.5(vue@3.5.13(typescript@5.7.2))
+      dotenv: 16.4.5
+      lodash-es: 4.17.21
+    transitivePeerDependencies:
+      - vue
+
   '@directus/extensions-sdk@12.1.4(@types/node@22.10.2)(@unhead/vue@1.11.14(vue@3.5.13(typescript@5.7.2)))(knex@3.1.0)(pinia@2.3.0(typescript@5.7.2)(vue@3.5.13(typescript@5.7.2)))(terser@5.37.0)(typescript@5.7.2)':
     dependencies:
       '@directus/composables': 11.1.5(vue@3.5.11(typescript@5.7.2))
@@ -2022,6 +2044,19 @@ snapshots:
       micromustache: 8.0.3
     optionalDependencies:
       vue: 3.5.11(typescript@5.7.2)
+
+  '@directus/utils@12.0.5(vue@3.5.13(typescript@5.7.2))':
+    dependencies:
+      '@directus/constants': 12.0.1
+      '@directus/system-data': 2.1.2
+      date-fns: 4.1.0
+      fs-extra: 11.2.0
+      joi: 17.13.3
+      js-yaml: 4.1.0
+      lodash-es: 4.17.21
+      micromustache: 8.0.3
+    optionalDependencies:
+      vue: 3.5.13(typescript@5.7.2)
 
   '@esbuild/android-arm64@0.17.19':
     optional: true
@@ -2793,6 +2828,8 @@ snapshots:
       dom-serializer: 1.4.1
       domelementtype: 2.3.0
       domhandler: 4.3.1
+
+  dotenv@16.4.5: {}
 
   ecdsa-sig-formatter@1.0.11:
     dependencies:
