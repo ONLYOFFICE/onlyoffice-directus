@@ -27,6 +27,11 @@ jobs:
       id: pnpm-install
       with:
         run_install: false
+    
+    - name: Log Versions
+      run: |
+        echo "node -v"
+        echo "pnmp -v"
 
     - name: Get Info
       id: info
