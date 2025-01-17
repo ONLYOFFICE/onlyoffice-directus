@@ -1,1 +1,1 @@
-# Directus ONLYOFFICE extension
+# ONLYOFFICE extension for Directus
