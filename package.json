@@ -38,8 +38,9 @@
 		"host": "^10.10.0"
 	},
 	"scripts": {
-		"build": "directus-extension build",
+		"build": "directus-extension build && pnpm copy-assets",
 		"dev": "directus-extension build -w --no-minify",
+		"copy-assets": "copyfiles -u 1 ./src/assets/document-templates/**/*.{docx,xlsx,pptx} dist && copyfiles -u 1 ./src/assets/document-templates/**/*.pdf dist",
 		"link": "directus-extension link",
 		"add": "directus-extension add",
 		"res": "pnpm install --ignore-workspace"
@@ -52,7 +53,8 @@
 		"@types/node": "^22.10.5",
 		"jsonwebtoken": "9.0.2",
 		"typescript": "^5.7.3",
-		"vue": "^3.5.13"
+		"vue": "^3.5.13",
+		"copyfiles": "2.4.1"
 	},
 	"packageManager": "pnpm@9.12.1",
 	"engines": {

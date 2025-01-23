@@ -23,6 +23,15 @@ import { useEnv } from '@directus/env';
 import { getAccountability } from "../utils/get_accountability";
 import jwt from "jsonwebtoken";
 import { JwtUtils } from "../services/jwt_utils";
+import { PrimaryKey, File } from "@directus/types";
+import format_utils from "../utils/format_utils";
+import path from "path";
+import { createReadStream, existsSync, open, readFile, ReadStream } from "fs";
+
+interface CreateFileData {
+	filename: string;
+	filetype: string;
+}
 
 const env = useEnv();
 
@@ -44,6 +53,30 @@ export default defineEndpoint((router, context) => {
 		} catch (error) {
 			request.log.error(error);
 			response.json({ "error": 1, "message": error.message });
+		}
+	});
+
+	router.post("/file", async (request, response) => {
+		let stream: ReadStream | null = null;
+		try {
+			const body = request.body as CreateFileData;
+			const format = format_utils.getFormatByExtension(body.filetype);
+			if (!format) throw new Error(`Unknown format: .${body.filetype}`);
+
+			// ToDo: pass language
+			const templatePath = path.join(import.meta.dirname, `assets/document-templates/default/new.${format.name}`);
+			if (!existsSync(templatePath)) throw new Error(`Missing file template for .${format.name}`);
+			stream = createReadStream(templatePath);
+
+			const key = await createFile(request, { title: body.filename, type: format.mime[0], filename_download: `${body.filename}.${format.name}` }, stream);
+			response.json({ "error": 0, "message": "success", "key": key });
+		} catch (error) {
+			request.log.error(error);
+			response.json({ "error": 1, "message": error.message });
+		} finally {
+			try {
+				stream?.close();
+			} catch { }
 		}
 	});
 
@@ -158,6 +191,8 @@ export default defineEndpoint((router, context) => {
 			response.json({ "error": 1, "message": error.message },);
 		}
 	});
+	
+	// ToDo: move to file service
 
 	async function updateFile(request: any, fileId: string, fileUrl: string) {
 		const service = new FilesService({
@@ -170,5 +205,17 @@ export default defineEndpoint((router, context) => {
 
 		let disk: string = toArray(env['STORAGE_LOCATIONS'] as string)[0]!;
 		await service.uploadOne(response.body, { storage: disk }, fileId);
+	}
+
+	async function createFile(request: any, data: Partial<File>, stream: any): Promise<PrimaryKey> {
+		const service = new FilesService({
+			schema: request.schema,
+			accountability: request.accountability
+		});
+		
+		let disk: string = toArray(env['STORAGE_LOCATIONS'] as string)[0]!;
+		const payload: Partial<File> & { storage: string } = { ...data, storage: disk };
+		
+		return await service.uploadOne(stream, payload);
 	}
 });

@@ -1,3 +1,8 @@
 [submodule "src/assets/document-formats"]
 	path = src/assets/document-formats
 	url = https://github.com/ONLYOFFICE/document-formats
+
+[submodule "src/assets/document-templates"]
+	path = src/assets/document-templates
+	url = https://github.com/ONLYOFFICE/document-templates
+	branch = main/new

@@ -15,7 +15,7 @@
  */
 
 import { EndpointExtensionContext } from "@directus/extensions";
-import formats from "../assets/document-formats/onlyoffice-docs-formats.json"
+import format_utils from "../utils/format_utils";
 import { ItemPermissions } from "@directus/types";
 import jwt from "jsonwebtoken";
 import { JwtUtils } from "./jwt_utils";
@@ -70,12 +70,12 @@ export class EditorConfigService {
         const baseUrl = `${this.request.protocol}://${this.request.get("host")}`;
 
         const fileExt = this.getFileExtension(data.filename_download);
-        const format = formats.filter(format => format.name == fileExt)[0];
+        const format = format_utils.getFormatByExtension(fileExt);
 
-        if (!format) throw new Error("Unknown format");
+        if (!format) throw new Error(`Unknown format: .${fileExt}`);
 
         const userRights: ItemPermissions = await permissionsService.getItemPermissions("directus_files", fileId);
-        const isEdit = editorAction == EditorActionType.Edit && format.actions.includes("edit") && userRights.update.access;
+        const isEdit = editorAction == EditorActionType.Edit && format.actions.includes(format_utils.DocumentAction.Edit) && userRights.update.access;
 
         const ooToken = jwt.sign({
             user: user.id
