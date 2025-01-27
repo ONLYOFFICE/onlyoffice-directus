@@ -42,11 +42,14 @@
 			<v-divider class="divider" />
 
 			<div class="field">
-				<div class="field-label type-label">or upload</div>
+				<div class="field-label type-label">Or Upload file</div>
 				<component :is="FileComponent" v-bind="attrs" />
 			</div>
 
-			<v-button @click="submitForm()" class="margin-top">Create</v-button>
+			<div class="dialog-buttons">
+				<v-button @click="createDialog = false" class="margin-top secondary margin-right">Cancel</v-button>
+				<v-button @click="submitForm()" class="margin-top">{{ !!fileId ? "Replace" : "Create" }}</v-button>
+			</div>
 		</v-sheet>
 	</v-dialog>
 </template>
@@ -75,18 +78,18 @@ function useForm() {
 	const fields = computed<DeepPartial<Field>[]>(() => [
 		{
 			field: 'filename',
-			name: '$t:filename',
+			name: '$t:Name',
 			type: 'string',
 			meta: {
 				interface: 'input',
 				options: {
-					placeholder: '$t:enter file name',
+					placeholder: '$t:Enter file name',
 				},
 			},
 		},
 		{
 			field: 'filetype',
-			name: '$t:filetype',
+			name: '$t:Choose ONLYOFFICE file type',
 			type: 'string',
 			meta: {
 				interface: 'select-dropdown',
@@ -222,5 +225,10 @@ iframe {
 
 .sheet {
 	width: 50%;
+}
+
+.dialog-buttons {
+	display: flex;
+	justify-content: end;
 }
 </style>
