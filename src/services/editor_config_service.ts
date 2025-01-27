@@ -91,7 +91,7 @@ export class EditorConfigService {
                 "info": {
                     "uploaded": data.uploaded_on
                 },
-                "key": `${data.id}_${data.modified_on}`,
+                "key": `${data.id}_${data.modified_on.toString().replaceAll(":", "-")}`,
                 "permissions": {
                     "edit": isEdit
                 },
