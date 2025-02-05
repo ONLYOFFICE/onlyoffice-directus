@@ -24,7 +24,9 @@ To get ONLYOFFICE Docs Cloud, get started [here](https://www.onlyoffice.com/docs
 
 Add the extension from the in-built Directus Marketplace.
 
-Once done, go to the ONLYOFFICE Settings page within Directus and enter the following credentials: 
+Once done, go to the Directus Settings -> Modules, check the ONLYOFFICE checkbox and click the Save button. After that, the ONLYOFFICE extension will appear in the left panel (as a file icon). To change the place where this icon is displayed in the left panel, go to Settings -> Modules, pull the 2 stripes near ONLYOFFICE and move the line to the desired place. Click the Save button in the upper right corner.
+
+Then, click on the file icon in the left menu to open the ONLYOFFICE Settings page within Directus. Enter the following credentials: 
 
 * **Doc Server Public URL**: Enter the URL of the installed ONLYOFFICE Docs (self-hosted or cloud instance).
 * **Doc Server Jwt Secret**: Use the automatically generated secret key or enter your own. It should be the same as in the ONLYOFFICE Docs [config file](https://api.onlyoffice.com/docs/docs-api/additional-api/signature/).
