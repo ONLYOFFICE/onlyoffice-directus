@@ -1,6 +1,6 @@
 {
 	"name": "onlyoffice-directus",
-	"description": "Please enter a description for your extension",
+	"description": "This extension allows working with office files in Directus using ONLYOFFICE Docs.",
 	"icon": "extension",
 	"version": "1.0.0",
 	"keywords": [
