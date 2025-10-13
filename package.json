@@ -1,13 +1,27 @@
 {
 	"name": "onlyoffice-directus",
-	"description": "This extension allows working with office files in Directus using ONLYOFFICE Docs.",
-	"icon": "extension",
 	"version": "1.0.0",
+	"description": "This extension allows working with office files in Directus using ONLYOFFICE Docs.",
+	"license": "Apache-2.0",
+	"bugs": {
+		"url": "https://github.com/ONLYOFFICE/onlyoffice-directus/issues",
+		"email": "support@onlyoffice.com"
+	},
+	"homepage": "https://github.com/ONLYOFFICE/onlyoffice-directus",
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:ONLYOFFICE/onlyoffice-directus.git"
+	},
+	"author": "Ascensio System SIA <integration@onlyoffice.com>",
+	"maintainers": [
+		"Ascensio System SIA <integration@onlyoffice.com> (https://www.onlyoffice.com)"
+	],
 	"keywords": [
 		"directus",
 		"directus-extension",
 		"directus-extension-bundle"
 	],
+	"icon": "extension",
 	"type": "module",
 	"files": [
 		"dist"
