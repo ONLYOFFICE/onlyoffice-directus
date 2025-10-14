@@ -31,7 +31,7 @@
 		</v-button>
 	</div>
 
-	<v-dialog v-model="createDialog" @esc="createDialog = false">
+	<v-dialog v-model="createDialog" @esc="createDialog = false" keep-behind>
 		<v-sheet class="sheet">
 			<v-notice v-if="createDialogNotice.message" type="danger" icon="warning">{{createDialogNotice}}</v-notice>
 
@@ -231,5 +231,11 @@ iframe {
 .dialog-buttons {
 	display: flex;
 	justify-content: end;
+}
+</style>
+
+<style>
+:deep(.v-drawer.container.right) {
+	z-index: 1000 !important;
 }
 </style>
