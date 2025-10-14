@@ -30,7 +30,7 @@ Then, click on the file icon in the left menu to open the ONLYOFFICE Settings pa
 
 * **Doc Server Public URL**: Enter the URL of the installed ONLYOFFICE Docs (self-hosted or cloud instance).
 * **Doc Server Jwt Secret**: Use the automatically generated secret key or enter your own. It should be the same as in the ONLYOFFICE Docs [config file](https://api.onlyoffice.com/docs/docs-api/additional-api/signature/).
-* **Doc Server Jwt Header**: Use the default JWT authorization header or enter your own.
+* **Doc Server Jwt Header**: Use the AuthorizationJwt header or enter your own.
 
 ## Using the ONLYOFFICE extension
 

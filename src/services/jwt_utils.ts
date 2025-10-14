@@ -54,7 +54,7 @@ export class JwtUtils {
     private getJwtHeader(): string {
         return this.settings.doc_server_jwt_header
             ? this.settings.doc_server_jwt_header.toLowerCase()
-            : "authorization";
+            : "AuthorizationJwt";
     }
 
     private getDefaultJwtOptions(): jwt.SignOptions {
