@@ -60,8 +60,38 @@ export default defineEndpoint((router, context) => {
 			const format = format_utils.getFormatByExtension(body.filetype);
 			if (!format) throw new Error(`Unknown format: .${body.filetype}`);
 
-			// ToDo: pass language
-			const templatePath = path.join(import.meta.dirname, `assets/document-templates/default/new.${format.name}`);
+			const { UsersService, SettingsService } = services;
+			const usersService = new UsersService({
+				schema: request.schema
+			});
+			const settingsService = new SettingsService({
+				schema: request.schema
+			});
+
+			let language = "default";
+
+			if (request.accountability?.user) {
+				try {
+					const user = await usersService.readOne(request.accountability.user);
+					if (user.language) {
+						language = user.language;
+					}
+				} catch { }
+			}
+
+			if (language === "default") {
+				try {
+					const directusSettings = await settingsService.readSingleton({});
+					if (directusSettings.default_language) {
+						language = directusSettings.default_language;
+					}
+				} catch { }
+			}
+
+			let templatePath = path.join(import.meta.dirname, `assets/document-templates/${language}/new.${format.name}`);
+			if (!existsSync(templatePath)) {
+				templatePath = path.join(import.meta.dirname, `assets/document-templates/default/new.${format.name}`);
+			}
 			if (!existsSync(templatePath)) throw new Error(`Missing file template for .${format.name}`);
 			stream = createReadStream(templatePath);
 
