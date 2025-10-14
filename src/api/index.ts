@@ -25,6 +25,7 @@ import jwt from "jsonwebtoken";
 import { JwtUtils } from "../services/jwt_utils";
 import { PrimaryKey, File } from "@directus/types";
 import format_utils from "../utils/format_utils";
+import { encodeFilename } from "../utils/encode_filename";
 import path from "path";
 import { createReadStream, existsSync, open, readFile, ReadStream } from "fs";
 
@@ -102,9 +103,10 @@ export default defineEndpoint((router, context) => {
 			});
 
 			const { stream, file, stat } = await service.getAsset(request.params.file_id, null, null);
+			const filename = encodeFilename(file.filename_download || file.title);
 			response.attachment(file.filename_download);
 			response.setHeader("Content-Type", file.type);
-			response.setHeader("Content-Disposition", `attachment; filename="${file.filename_download || file.title}"`);
+			response.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
 
 			stream
 				.on("error", (error: any) => {
