@@ -162,6 +162,7 @@ export default defineComponent({
 
 					if (body.error == 0) {
 						fileId.value = body.key.toString();
+						emit('input', fileId.value);
 						createDialog.value = false;
 						return;
 					}
