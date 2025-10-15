@@ -18,21 +18,24 @@ import { EndpointExtensionContext } from "@directus/extensions";
 import settings_collection from "../schema/settings_collection";
 import * as constants from "../constants/constants";
 import { randomUUID } from "node:crypto";
+import packageJson from "../../package.json";
 
 export class SettingsService {
     private request: any;
     private getSchema: any;
     private itemsServiceType: any;
     private collectionsServiceType: any;
+    private fieldsServiceType: any;
 
     constructor(request: any, context: EndpointExtensionContext) {
         const { services, getSchema } = context;
-        const { ItemsService, CollectionsService } = services;
+        const { ItemsService, CollectionsService, FieldsService } = services;
 
         this.request = request;
         this.getSchema = getSchema;
         this.collectionsServiceType = CollectionsService;
         this.itemsServiceType = ItemsService;
+        this.fieldsServiceType = FieldsService;
     }
 
     async getSettings(checkRights: boolean = false): Promise<any> {
@@ -57,12 +60,43 @@ export class SettingsService {
         } catch { }
 
         if (data == null) {
-            settings_collection.fields.filter(f => f.field == "directus_jwt_secret")[0].schema.default_value = randomUUID();
+            const jwtSecretField = settings_collection.fields.find(f => f.field == "directus_jwt_secret");
+            if (jwtSecretField && jwtSecretField.schema) {
+                jwtSecretField.schema.default_value = randomUUID();
+            }
             await collectionsService.createOne(settings_collection);
+        } else {
+            const currentVersion = packageJson.version;
+            const itemsService = new this.itemsServiceType(constants.ONLYOFFICE_SETIINGS_COLLECTION_KEY, {
+                schema: await this.getSchema(),
+                accountability: null
+            });
+
+            const settings = await itemsService.readSingleton({});
+
+            if (!settings.version || settings.version !== currentVersion) {
+                const fieldsService = new this.fieldsServiceType({
+                    schema: await this.getSchema(),
+                    accountability: null
+                });
+
+                const existingFields = await fieldsService.readAll(constants.ONLYOFFICE_SETIINGS_COLLECTION_KEY);
+                const existingFieldNames = existingFields.map((f: any) => f.field);
+
+                for (const schemaField of settings_collection.fields) {
+                    if (!existingFieldNames.includes(schemaField.field)) {
+                        try {
+                            await fieldsService.createField(constants.ONLYOFFICE_SETIINGS_COLLECTION_KEY, schemaField);
+                            this.request.log?.info(`Added new field '${schemaField.field}'`);
+                        } catch (error) {
+                            this.request.log?.error(`Failed to add field '${schemaField.field}':`, error);
+                        }
+                    }
+                }
+                await itemsService.updateOne(settings.id, { version: currentVersion });
+                this.request.log?.info(`ONLYOFFICE updated to version ${currentVersion}`);
+            }
         }
-
-        // ToDo: add version number to settings field; collectionsService.updateOne doesn't update fields; have to call fieldsService for that
-
         return new this.itemsServiceType(constants.ONLYOFFICE_SETIINGS_COLLECTION_KEY, {
             schema: await this.getSchema(),
             accountability: checkRights ? this.request.accountability : null

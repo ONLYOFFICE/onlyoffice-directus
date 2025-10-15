@@ -18,26 +18,23 @@ import { defineEndpoint } from "@directus/extensions-sdk";
 import getEditorTemplate from "../assets/templates/editor";
 import { SettingsService as OnlyofficeSettingsService } from "../services/settings_service";
 import { EditorConfigService, EditorActionType, EditorType } from "../services/editor_config_service";
-import { toArray } from "@directus/utils";
-import { useEnv } from '@directus/env';
+import { FileService as OnlyofficeFileService } from "../services/file_service";
 import { getAccountability } from "../utils/get_accountability";
 import jwt from "jsonwebtoken";
 import { JwtUtils } from "../services/jwt_utils";
-import { PrimaryKey, File } from "@directus/types";
 import format_utils from "../utils/format_utils";
+import { encodeFilename } from "../utils/encode_filename";
 import path from "path";
-import { createReadStream, existsSync, open, readFile, ReadStream } from "fs";
+import { createReadStream, existsSync, ReadStream } from "fs";
 
 interface CreateFileData {
 	filename: string;
 	filetype: string;
 }
 
-const env = useEnv();
-
 export default defineEndpoint((router, context) => {
 	const { services } = context;
-	const { AssetsService, FilesService } = services;
+	const { AssetsService } = services;
 
 	router.get("/editor/:file_id", async (request, response) => {
 		response.setHeader("Content-Security-Policy", `default-src: 'self'`);
@@ -63,12 +60,43 @@ export default defineEndpoint((router, context) => {
 			const format = format_utils.getFormatByExtension(body.filetype);
 			if (!format) throw new Error(`Unknown format: .${body.filetype}`);
 
-			// ToDo: pass language
-			const templatePath = path.join(import.meta.dirname, `assets/document-templates/default/new.${format.name}`);
+			const { UsersService, SettingsService } = services;
+			const usersService = new UsersService({
+				schema: request.schema
+			});
+			const settingsService = new SettingsService({
+				schema: request.schema
+			});
+
+			let language = "default";
+
+			if (request.accountability?.user) {
+				try {
+					const user = await usersService.readOne(request.accountability.user);
+					if (user.language) {
+						language = user.language;
+					}
+				} catch { }
+			}
+
+			if (language === "default") {
+				try {
+					const directusSettings = await settingsService.readSingleton({});
+					if (directusSettings.default_language) {
+						language = directusSettings.default_language;
+					}
+				} catch { }
+			}
+
+			let templatePath = path.join(import.meta.dirname, `assets/document-templates/${language}/new.${format.name}`);
+			if (!existsSync(templatePath)) {
+				templatePath = path.join(import.meta.dirname, `assets/document-templates/default/new.${format.name}`);
+			}
 			if (!existsSync(templatePath)) throw new Error(`Missing file template for .${format.name}`);
 			stream = createReadStream(templatePath);
 
-			const key = await createFile(request, { title: body.filename, type: format.mime[0], filename_download: `${body.filename}.${format.name}` }, stream);
+			const fileService = new OnlyofficeFileService(request, context);
+			const key = await fileService.createFile({ title: body.filename, type: format.mime[0], filename_download: `${body.filename}.${format.name}` }, stream);
 			response.json({ "error": 0, "message": "success", "key": key });
 		} catch (error) {
 			request.log.error(error);
@@ -102,9 +130,10 @@ export default defineEndpoint((router, context) => {
 			});
 
 			const { stream, file, stat } = await service.getAsset(request.params.file_id, null, null);
+			const filename = encodeFilename(file.filename_download || file.title);
 			response.attachment(file.filename_download);
 			response.setHeader("Content-Type", file.type);
-			response.setHeader("Content-Disposition", `attachment; filename="${file.filename_download || file.title}"`);
+			response.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
 
 			stream
 				.on("error", (error: any) => {
@@ -163,7 +192,8 @@ export default defineEndpoint((router, context) => {
 						const userId = body.actions[0].userid;
 						request.accountability = await getAccountability(context, userId);
 					}
-					await updateFile(request, request.params.file_id, body.url);
+					const fileService = new OnlyofficeFileService(request, context);
+					await fileService.updateFile(request.params.file_id, body.url);
 					break;
 				case 4: // no changes
 					break;
@@ -191,31 +221,4 @@ export default defineEndpoint((router, context) => {
 			response.json({ "error": 1, "message": error.message },);
 		}
 	});
-	
-	// ToDo: move to file service
-
-	async function updateFile(request: any, fileId: string, fileUrl: string) {
-		const service = new FilesService({
-			schema: request.schema,
-			accountability: request.accountability
-		});
-
-		const response = await fetch(new URL(fileUrl));
-		if (!response.ok) throw new Error(`ONLYOFFICE Couldn't download file: ${response.status} ${response.statusText}`);
-
-		let disk: string = toArray(env['STORAGE_LOCATIONS'] as string)[0]!;
-		await service.uploadOne(response.body, { storage: disk }, fileId);
-	}
-
-	async function createFile(request: any, data: Partial<File>, stream: any): Promise<PrimaryKey> {
-		const service = new FilesService({
-			schema: request.schema,
-			accountability: request.accountability
-		});
-		
-		let disk: string = toArray(env['STORAGE_LOCATIONS'] as string)[0]!;
-		const payload: Partial<File> & { storage: string } = { ...data, storage: disk };
-		
-		return await service.uploadOne(stream, payload);
-	}
 });

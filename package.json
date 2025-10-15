@@ -52,7 +52,7 @@
 		"host": "^10.10.0"
 	},
 	"scripts": {
-		"build": "directus-extension build && pnpm copy-assets",
+		"build": "directus-extension build --sourcemap && pnpm copy-assets",
 		"dev": "directus-extension build -w --no-minify",
 		"copy-assets": "copyfiles -u 1 ./src/assets/document-templates/**/*.{docx,xlsx,pptx} dist && copyfiles -u 1 ./src/assets/document-templates/**/*.pdf dist",
 		"link": "directus-extension link",
@@ -60,19 +60,19 @@
 		"res": "pnpm install --ignore-workspace"
 	},
 	"devDependencies": {
-		"@directus/env": "4.1.0",
-		"@directus/extensions-sdk": "12.1.4",
-		"@directus/utils": "12.0.5",
+		"@directus/env": "5.2.0",
+		"@directus/extensions-sdk": "16.0.2",
+		"@directus/utils": "13.0.10",
 		"@types/jsonwebtoken": "9.0.7",
-		"@types/node": "^22.10.5",
+		"@types/node": "^22.18.10",
+		"copyfiles": "2.4.1",
 		"jsonwebtoken": "9.0.2",
-		"typescript": "^5.7.3",
-		"vue": "^3.5.13",
-		"copyfiles": "2.4.1"
+		"typescript": "^5.9.3",
+		"vue": "^3.5.22"
 	},
-	"packageManager": "pnpm@9.12.1",
+	"packageManager": "pnpm@10.18.2",
 	"engines": {
 		"node": ">=22",
-		"pnpm": "9"
+		"pnpm": ">=10 <11"
 	}
 }
