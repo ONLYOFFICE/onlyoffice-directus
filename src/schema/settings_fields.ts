@@ -80,5 +80,19 @@ export default [
             is_nullable: false,
             default_value: "secret"
         }
+    },
+    {
+        field: "version",
+        type: "string",
+        meta: {
+            special: null,
+            hidden: true,
+            readonly: true,
+            interface: "input",
+        },
+        schema: {
+            is_nullable: true,
+            default_value: "1.0.0"
+        }
     }
 ];
