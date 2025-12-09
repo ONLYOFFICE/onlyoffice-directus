@@ -1,0 +1,8 @@
+---
+- - :approve
+  - "@directus/schema"
+  - :who:
+    :why: BUSL-1.1, but the dependence is transitive
+    :versions:
+    - 13.0.3
+    :when: 2025-12-09 10:03:49.099833700 Z
