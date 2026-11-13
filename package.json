@@ -49,7 +49,7 @@
 				"source": "src/onlyoffice-file-interface/index.ts"
 			}
 		],
-		"host": "^10.10.0"
+		"host": "^11.4.0"
 	},
 	"scripts": {
 		"build": "directus-extension build --sourcemap && pnpm copy-assets",
@@ -57,7 +57,9 @@
 		"copy-assets": "copyfiles -u 1 ./src/assets/document-templates/**/*.{docx,xlsx,pptx} dist && copyfiles -u 1 ./src/assets/document-templates/**/*.pdf dist",
 		"link": "directus-extension link",
 		"add": "directus-extension add",
-		"res": "pnpm install --ignore-workspace"
+		"res": "pnpm install --ignore-workspace",
+		"test": "node --test test/smoke.test.mjs",
+		"test:smoke": "pnpm build && node --test test/smoke.test.mjs"
 	},
 	"devDependencies": {
 		"@directus/env": "5.2.0",
